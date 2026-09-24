@@ -1,5 +1,10 @@
-from causalnex.structure.notears import from_pandas
-from causalnex.structure import DAGRegressor, DAGClassifier
+try:
+    from causalnex.structure.notears import from_pandas
+    from causalnex.structure import DAGRegressor, DAGClassifier
+except ImportError:
+    from_pandas = None
+    DAGRegressor = None
+    DAGClassifier = None
 import numpy as np
 import torch
 import pandas as pd

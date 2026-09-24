@@ -23,8 +23,6 @@ scipy>=1.9.0
 scikit-learn>=1.2.0
 statsmodels>=0.14.0
 networkx>=2.8.0
-causalnex>=0.11.2
-pgmpy>=0.1.18
 
 # Visualization & Plotting
 matplotlib>=3.5.0
