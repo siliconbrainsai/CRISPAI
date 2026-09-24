@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
     PORT=10000
 
-# Install build tools, compilers, python headers and sed
+# Install build tools, compilers and python headers
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
@@ -36,13 +36,23 @@ COPY . /app
 # Install CPU PyTorch
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-# Fix incompatible causalnex version for Python 3.10 and install requirements
-RUN if [ -f requirements.txt ]; then \
-        sed -i 's/causalnex==0.11.0/causalnex>=0.11.2/g' requirements.txt && \
-        pip install --no-cache-dir --no-build-isolation -r requirements.txt; \
-    fi
+# Install requirements
+RUN if [ -f requirements.txt ]; then pip install --no-cache-dir --no-build-isolation -r requirements.txt; fi
 
 EXPOSE 10000
 
-# Start backend server
-CMD ["sh", "-c", "if [ -f main.py ]; then uvicorn main:app --host 0.0.0.0 --port ${PORT}; elif [ -f app.py ]; then python app.py; else python3; fi"]
+# Auto-detect ASGI app location or fallback to main script
+CMD ["sh", "-c", "\
+if python3 -c 'import main; hasattr(main, \"app\")' 2>/dev/null; then \
+    uvicorn main:app --host 0.0.0.0 --port ${PORT}; \
+elif python3 -c 'import backend.main; hasattr(backend.main, \"app\")' 2>/dev/null; then \
+    uvicorn backend.main:app --host 0.0.0.0 --port ${PORT}; \
+elif python3 -c 'import app; hasattr(app, \"app\")' 2>/dev/null; then \
+    uvicorn app:app --host 0.0.0.0 --port ${PORT}; \
+elif [ -f backend/main.py ]; then \
+    cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT}; \
+elif [ -f main.py ]; then \
+    python3 main.py; \
+else \
+    python3 app.py; \
+fi"]
