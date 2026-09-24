@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
     PORT=10000
 
-# Install build tools, compilers and python headers
+# Install build tools, compilers, python headers and sed
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
@@ -36,7 +36,7 @@ COPY . /app
 # Install CPU PyTorch
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-# Fix incompatible causalnex version in requirements.txt for Python 3.10
+# Fix incompatible causalnex version for Python 3.10 and install requirements
 RUN if [ -f requirements.txt ]; then \
         sed -i 's/causalnex==0.11.0/causalnex>=0.11.2/g' requirements.txt && \
         pip install --no-cache-dir --no-build-isolation -r requirements.txt; \
