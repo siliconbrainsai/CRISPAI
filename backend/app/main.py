@@ -8,9 +8,13 @@ from app.core.config import settings
 from app.core.db import engine, Base, check_db_connection
 from app.core.logging_middleware import RequestCorrelationMiddleware
 from app.api.endpoints import upload, pipeline, results, predict, enterprise, auth, copilot, newsletter
+from app.core.seed import seed_database
 
 # Initialize tables
 Base.metadata.create_all(bind=engine)
+
+# Seed default admin, data scientist, and sample dataset
+seed_database()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -25,6 +29,7 @@ app.add_middleware(RequestCorrelationMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
+    allow_origin_regex=r"https://.*\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

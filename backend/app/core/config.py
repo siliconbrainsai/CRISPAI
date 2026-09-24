@@ -48,7 +48,8 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
+        "https://frontend-liart-nine-49.vercel.app",
     ]
 
     @property
@@ -69,7 +70,11 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> List[str]:
-        return self.CORS_ORIGINS
+        origins = list(self.CORS_ORIGINS)
+        env_origins = os.getenv("CORS_ORIGINS")
+        if env_origins:
+            origins.extend([o.strip() for o in env_origins.split(",") if o.strip()])
+        return origins
 
     class Config:
         env_file = ".env"

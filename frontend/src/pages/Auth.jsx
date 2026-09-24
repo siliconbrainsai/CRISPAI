@@ -51,9 +51,24 @@ const Auth = () => {
     }
   };
 
-  const handleQuickLogin = (demoEmail, demoPassword) => {
+  const handleQuickLogin = async (demoEmail, demoPassword) => {
     setEmail(demoEmail);
     setPassword(demoPassword);
+    setError('');
+    setLoading(true);
+
+    try {
+      const result = await login(demoEmail, demoPassword);
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError(err.message || 'Authentication failed. Please check credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -187,24 +202,33 @@ const Auth = () => {
 
         {/* Quick Demo Credentials */}
         {isLogin && (
-          <div className="pt-2 border-t border-slate-800">
-            <p className="text-[11px] uppercase tracking-wider text-slate-500 text-center font-bold mb-2">
-              Quick Test Credentials
-            </p>
+          <div className="pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                1-Click Instant Demo Access
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                Sandbox Ready
+              </span>
+            </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <button
                 type="button"
+                disabled={loading}
                 onClick={() => handleQuickLogin('admin@crisp.ai', 'AdminPassword123!')}
-                className="bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 py-1.5 px-2 rounded-lg text-center border border-slate-700 transition"
+                className="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-indigo-200 py-2 px-3 rounded-xl text-center border border-indigo-500/30 transition flex flex-col items-center justify-center font-medium disabled:opacity-50"
               >
-                Admin (Full Access)
+                <span>Admin (Full Access)</span>
+                <span className="text-[10px] text-indigo-400/80 font-normal">admin@crisp.ai</span>
               </button>
               <button
                 type="button"
+                disabled={loading}
                 onClick={() => handleQuickLogin('analyst@siliconbrain.ai', 'Admin123!')}
-                className="bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 py-1.5 px-2 rounded-lg text-center border border-slate-700 transition"
+                className="bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 hover:text-cyan-200 py-2 px-3 rounded-xl text-center border border-cyan-500/30 transition flex flex-col items-center justify-center font-medium disabled:opacity-50"
               >
-                Data Scientist
+                <span>Data Scientist</span>
+                <span className="text-[10px] text-cyan-400/80 font-normal">analyst@siliconbrain.ai</span>
               </button>
             </div>
           </div>
