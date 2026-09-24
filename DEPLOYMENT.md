@@ -67,3 +67,24 @@ CRISP AI 3.0 enforces four discrete enterprise roles:
 4. **Viewer**: Read-only access to datasets, reports, and completed analyses.
 
 Passwords are salted and hashed using native `bcrypt`. Passwords are never stored in plaintext. All entity records are automatically partitioned by `workspace_id`.
+
+---
+
+## 6. Vercel Deployment (Frontend & SPA Routing)
+
+CRISP AI is pre-configured with `vercel.json` for zero-configuration deployment on [Vercel](https://vercel.com):
+
+### Quick 2-Minute Deployment via Vercel Dashboard:
+1. Navigate to **[vercel.com/new](https://vercel.com/new)** and log in with your GitHub account.
+2. Select **Import Git Repository** and choose `siliconbrainsai/CRISPAI`.
+3. In the project configuration:
+   - **Framework Preset**: `Vite` (automatically detected)
+   - **Root Directory**: Leave as `./` (or select `frontend`)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist` (or `frontend/dist` if root)
+4. Under **Environment Variables**, add:
+   - `VITE_API_BASE_URL`: The URL of your running backend (e.g. `https://your-backend.onrender.com/api` or your cloud domain).
+5. Click **Deploy**.
+
+Vercel will automatically build the React application, configure SPA rewrites (preventing 404s on `/causal-engine` and `/analysis`), and assign a global HTTPS production domain (e.g. `https://crisp-ai.vercel.app`). Any subsequent `git push` to `main` will automatically trigger a new deployment.
+
