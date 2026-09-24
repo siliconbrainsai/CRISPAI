@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
     PORT=10000
 
-# సిస్టమ్ డిపెండెన్సీలు మరియు C-కంపైలర్ టూల్స్
+# Install system dependencies and C compiler tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
@@ -25,19 +25,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# బిల్డ్ టూల్స్ మరియు కంపైలర్ డిపెండెన్సీలను ముందుగానే ఇన్‌స్టాల్ చేయడం
+# Pre-install build tools and compiler dependencies for Bottleneck
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel Cython numpy
 
-# ప్రాజెక్ట్ ఫైల్స్‌ను కంటైనర్‌లోకి కాపీ చేయడం
+# Copy project files
 COPY . /app
 
-# CPU-ఓన్లీ PyTorch ఇన్‌స్టాలేషన్
+# Install CPU PyTorch
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-# requirements.txt లోని లైబ్రరీలను ఇన్‌స్టాల్ చేయడం
+# Install requirements
 RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
 
 EXPOSE 10000
 
-# బ్యాకెండ్ సర్వర్‌ను ఆటోమేటిక్‌గా రన్ చేసే కమాండ్ (FastAPI లేదా Flask)
+# Run backend server
 CMD ["sh", "-c", "if [ -f main.py ]; then uvicorn main:app --host 0.0.0.0 --port ${PORT}; elif [ -f app.py ]; then python app.py; else python3; fi"]
