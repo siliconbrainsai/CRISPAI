@@ -5,7 +5,7 @@
 # 2020, July
 #############################
 
-FROM nvidia/cuda:10.2-base-ubuntu18.04
+FROM python:3.10-slim
 
 MAINTAINER "Frank Soboczenski <frank.soboczenski@gmail.com>"
 
