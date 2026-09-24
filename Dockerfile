@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     libgomp1 \
+    sed \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -35,8 +36,11 @@ COPY . /app
 # Install CPU PyTorch
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-# Install requirements with no-build-isolation to use pre-installed numpy/Cython
-RUN if [ -f requirements.txt ]; then pip install --no-cache-dir --no-build-isolation -r requirements.txt; fi
+# Fix incompatible causalnex version in requirements.txt for Python 3.10
+RUN if [ -f requirements.txt ]; then \
+        sed -i 's/causalnex==0.11.0/causalnex>=0.11.2/g' requirements.txt && \
+        pip install --no-cache-dir --no-build-isolation -r requirements.txt; \
+    fi
 
 EXPOSE 10000
 
