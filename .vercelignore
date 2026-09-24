@@ -1,0 +1,24 @@
+# Vercel Ignore File
+# Exclude Python backend and non-frontend files to prevent Vercel from treating this as a FastAPI backend
+
+backend/
+*.py
+requirements*.txt
+Dockerfile
+docker-compose.yml
+render.yaml
+crisp_ai.db
+__pycache__/
+*.csv
+
+# Data and ML model weights
+image_model_saved/
+image_scripts/
+models/
+results/
+synthetic/
+data/
+dataio/
+experiment_configs/
+streamlit_frontend/
+regression_test_report.json

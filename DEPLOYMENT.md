@@ -78,12 +78,12 @@ CRISP AI is pre-configured with `vercel.json` for zero-configuration deployment 
 1. Navigate to **[vercel.com/new](https://vercel.com/new)** and log in with your GitHub account.
 2. Select **Import Git Repository** and choose `siliconbrainsai/CRISPAI`.
 3. In the project configuration:
-   - **Framework Preset**: `Vite` (automatically detected)
-   - **Root Directory**: Leave as `./` (or select `frontend`)
+   - **Root Directory**: Click **Edit** and choose **`frontend`** (Crucial: prevents Vercel from mistaking the repo for a Python FastAPI app)
+   - **Framework Preset**: `Vite`
    - **Build Command**: `npm run build`
-   - **Output Directory**: `dist` (or `frontend/dist` if root)
+   - **Output Directory**: `dist`
 4. Under **Environment Variables**, add:
-   - `VITE_API_BASE_URL`: The URL of your running backend (e.g. `https://your-backend.onrender.com/api` or your cloud domain).
+   - `VITE_API_BASE_URL`: `https://crispai.onrender.com/api` (or your backend Render URL).
 5. Click **Deploy**.
 
 Vercel will automatically build the React application, configure SPA rewrites (preventing 404s on `/causal-engine` and `/analysis`), and assign a global HTTPS production domain (e.g. `https://crisp-ai.vercel.app`). Any subsequent `git push` to `main` will automatically trigger a new deployment.
