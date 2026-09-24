@@ -88,3 +88,43 @@ CRISP AI is pre-configured with `vercel.json` for zero-configuration deployment 
 
 Vercel will automatically build the React application, configure SPA rewrites (preventing 404s on `/causal-engine` and `/analysis`), and assign a global HTTPS production domain (e.g. `https://crisp-ai.vercel.app`). Any subsequent `git push` to `main` will automatically trigger a new deployment.
 
+---
+
+## 7. Render Deployment (Backend API Service)
+
+CRISP AI includes both a native `render.yaml` blueprint and a production `Dockerfile` optimized for Render Web Services.
+
+### Option A: Deploy via Blueprint (Fastest & Zero Configuration)
+1. Go to **[dashboard.render.com](https://dashboard.render.com)**.
+2. Click **New +** -> **Blueprint**.
+3. Connect your repository: `siliconbrainsai/CRISPAI`.
+4. Render will read `render.yaml` and configure the service automatically:
+   - **Root Directory**: `backend`
+   - **Environment**: `Python`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Health Check Path**: `/health`
+5. Click **Apply**.
+
+### Option B: Deploy via Docker (Automatic Detection)
+If deploying via Render's Docker runtime:
+1. In Render, select **New +** -> **Web Service** -> Connect `siliconbrainsai/CRISPAI`.
+2. Select **Docker** as the environment.
+3. Keep default settings (Render will build from the root `Dockerfile`).
+4. The container is configured with Python 3.11, pre-cached CPU PyTorch, and starts using:
+   ```bash
+   uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+   ```
+5. Set Health Check Path to `/health`.
+
+### Option C: Manual Python Web Service
+1. In Render, select **New +** -> **Web Service** -> Connect `siliconbrainsai/CRISPAI`.
+2. Configure settings:
+   - **Root Directory**: `backend`
+   - **Environment**: `Python`
+   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Health Check Path**: `/health`
+3. Add Environment Variables:
+   - `ENVIRONMENT`: `production`
+   - `DATABASE_URL`: `sqlite:///./crisp_ai.db` (or your PostgreSQL URL)
+   - `JWT_SECRET_KEY`: `<generate-a-secure-random-key>`
