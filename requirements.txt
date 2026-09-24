@@ -17,3 +17,5 @@ patsy>=0.5.2
 requests>=2.28.0
 pydantic>=1.10.0
 Pillow>=9.0.0
+google-cloud-storage>=2.3.0
+google-api-core>=2.7.3
