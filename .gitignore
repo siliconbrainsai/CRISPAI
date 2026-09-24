@@ -40,3 +40,15 @@ MANIFEST
 # OS files
 .DS_Store
 Thumbs.db
+
+# Databases & Local Storage
+*.db
+*.sqlite
+*.sqlite3
+backend/crisp_ai.db
+
+# Uploads & Reports
+backend/uploads/
+backend/app/uploads/
+uploads/
+regression_test_report.json
