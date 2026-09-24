@@ -1,64 +1,38 @@
 #############################
-# FDL - Astronaut Health Team
-# 2020 Docker Version:v01
-# Frank Soboczenski
-# 2020, July
+# CRISP AI - Backend Engine
+# Render Optimized Container
 #############################
 
 FROM python:3.10-slim
 
-MAINTAINER "Frank Soboczenski <frank.soboczenski@gmail.com>"
+LABEL maintainer="Frank Soboczenski <frank.soboczenski@gmail.com>"
 
-# Install some basic utilities
-RUN apt-get update && apt-get install -y \
+ENV PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    PORT=10000
+
+# ప్రాథమిక సిస్టమ్ టూల్స్
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
-    sudo \
-    bash \
     git \
-    bzip2 \
-    libx11-6 \
- && rm -rf /var/lib/apt/lists/*
+    build-essential \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Create a working directory
-RUN mkdir /app
-COPY . /app
 WORKDIR /app
 
-# Create a non-root user and switch to it
-RUN adduser --disabled-password --gecos '' --shell /bin/bash user \
- && chown -R user:user /app
-RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-user
-USER user
+# ప్రాజెక్ట్ ఫైల్స్ కాపీ చేయడం
+COPY . /app
 
-# All users can use /home/user as their home directory
+# CPU-ఓన్లీ PyTorch ఇన్‌స్టాల్ చేయడం (Render సర్వర్లకు ఇది చాలా వేగంగా పనిచేస్తుంది)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-ENV HOME=/home/user
-RUN chmod 777 /home/user
+# మీ ప్రాజెక్ట్ requirements ఇన్‌స్టాల్ చేయడం
+RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
 
-# Install Miniconda and Python 3.8
-ENV CONDA_AUTO_UPDATE_CONDA=false
-ENV PATH=/home/user/miniconda/bin:$PATH
-RUN curl -sLo ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py37_4.8.2-Linux-x86_64.sh \
- && chmod +x ~/miniconda.sh \
- && ~/miniconda.sh -b -p ~/miniconda \
- && rm ~/miniconda.sh \
- && conda install -y python==3.7 \
- && conda clean -ya
+EXPOSE 10000
 
-# && conda install -y python==3.8.1 \
-
-# CUDA 10.2-specific steps
-RUN conda install -y -c pytorch \
-    cudatoolkit=10.2 \
-    "pytorch=1.5.0=py3.7_cuda10.2.89_cudnn7.6.5_0" \
-    "torchvision=0.6.0=py37_cu102" \
- && conda clean -ya
-
-# Installing neccessary libraries
-RUN pip install -r requirements.txt
-RUN sh -c 'echo -e IMAGE COMPLETED - READY TO RUN'
-
-# Set the default command to python3
-CMD ["python3"]
-CMD tail -f /dev/null
+# మీ బ్యాకెండ్ సర్వర్‌ను రన్ చేసే కమాండ్ (FastAPI లేదా Flask)
+CMD ["sh", "-c", "if [ -f main.py ]; then uvicorn main:app --host 0.0.0.0 --port ${PORT}; elif [ -f app.py ]; then python app.py; else python3; fi"]
