@@ -46,17 +46,4 @@ RUN if [ -f requirements.txt ]; then \
 EXPOSE 10000
 
 # Auto-detect ASGI application entrypoint across root, backend, and crispv3 directories
-CMD ["sh", "-c", "\
-if [ -f backend/main.py ] && python3 -c 'import backend.main; hasattr(backend.main, \"app\")' 2>/dev/null; then \
-    cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT}; \
-elif [ -f crispv3/backend/main.py ] && python3 -c 'import crispv3.backend.main; hasattr(crispv3.backend.main, \"app\")' 2>/dev/null; then \
-    cd crispv3/backend && uvicorn main:app --host 0.0.0.0 --port ${PORT}; \
-elif python3 -c 'import main; hasattr(main, \"app\")' 2>/dev/null; then \
-    uvicorn main:app --host 0.0.0.0 --port ${PORT}; \
-elif [ -f app.py ] && python3 -c 'import app; hasattr(app, \"app\")' 2>/dev/null; then \
-    uvicorn app:app --host 0.0.0.0 --port ${PORT}; \
-elif [ -f main.py ]; then \
-    python3 main.py; \
-else \
-    python3 app.py; \
-fi"]
+CMD ["sh", "-c", "if [ -f backend/main.py ] && python3 -c 'import backend.main; hasattr(backend.main, \"app\")' 2>/dev/null; then cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT}; elif [ -f crispv3/backend/main.py ] && python3 -c 'import crispv3.backend.main; hasattr(crispv3.backend.main, \"app\")' 2>/dev/null; then cd crispv3/backend && uvicorn main:app --host 0.0.0.0 --port ${PORT}; elif python3 -c 'import main; hasattr(main, \"app\")' 2>/dev/null; then uvicorn main:app --host 0.0.0.0 --port ${PORT}; elif [ -f app.py ] && python3 -c 'import app; hasattr(app, \"app\")' 2>/dev/null; then uvicorn app:app --host 0.0.0.0 --port ${PORT}; elif [ -f main.py ]; then python3 main.py; else python3 app.py; fi"]
