@@ -1,15 +1,40 @@
+# ==============================================================================
+# CRISP AI 3.0 - ASGI Application Export for Render, Railway, and Cloud Deployments
+# Exposes the production FastAPI application so `uvicorn main:app` works out-of-the-box.
+# ==============================================================================
+import sys
+import os
+from pathlib import Path
+
+_backend_dir = Path(__file__).resolve().parent / "backend"
+if str(_backend_dir) not in sys.path:
+    sys.path.insert(0, str(_backend_dir))
+
+try:
+    from app.main import app
+except Exception:
+    try:
+        from backend.app.main import app
+    except Exception as _app_err:
+        import logging
+        logging.getLogger("uvicorn.error").warning(f"Failed to load ASGI app from backend: {_app_err}")
+        app = None
+
 import numpy as np
 import pandas as pd
 
-from dataio.datasets import get_datasets_for_experiment
-from utils.gcp_helpers import save_json_to_bucket, save_dataframe_to_bucket
-from utils.plotting import plot_most_predictive
-from utils.vm_helpers import save_dict_to_json
-from image_scripts.train_image_model import train_image_model, train_image_model_loocv, train_image_model_kfold
-from image_scripts.extract_image_features import extract_image_features
-from image_scripts.merge_tabular_image_features import save_merged_features
-from image_scripts.gradcam import save_gradcam_output
-from image_scripts.validate_config import validate_json_config
+try:
+    from dataio.datasets import get_datasets_for_experiment
+    from utils.gcp_helpers import save_json_to_bucket, save_dataframe_to_bucket
+    from utils.plotting import plot_most_predictive
+    from utils.vm_helpers import save_dict_to_json
+    from image_scripts.train_image_model import train_image_model, train_image_model_loocv, train_image_model_kfold
+    from image_scripts.extract_image_features import extract_image_features
+    from image_scripts.merge_tabular_image_features import save_merged_features
+    from image_scripts.gradcam import save_gradcam_output
+    from image_scripts.validate_config import validate_json_config
+except ImportError:
+    pass
 
 def run(config):
     experiment_type = config.get("experiment_type", "tabular_only")  # Default to tabular_only
@@ -505,7 +530,7 @@ def run(config):
             plot_most_predictive(coefs, fname)
 
     ##################################        END        ################################
-    #####################################################################################
+
 
 
 if __name__ == '__main__':
